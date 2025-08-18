@@ -1,37 +1,8 @@
 import { Check, CircleCheckBig, Clock, Play, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TaskModal from "../components/TaskModal";
-
-export interface Task {
-  id: string;
-  name: string;
-  description: string;
-  status: TaskStatus;
-  assignedDate: string;
-  activeTime: number;
-  sessions: Session[];
-  isTimerActive: boolean;
-  timerStartTime: number | null;
-}
-
-export interface TaskFormData {
-  name: string;
-  description: string;
-}
-
-const TASK_STATUS = {
-  PENDING: "pending",
-  IN_PROGRESS: "inProgress",
-  COMPLETED: "completed",
-} as const;
-
-export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS];
-
-// from when you start the timer on a task to when you stop it
-interface Session {
-  start: number;
-  end: number;
-}
+import TaskCard from "../components/TaskCard";
+import { TASK_STATUS, type Task, type TaskFormData } from "../global";
 
 const WorkView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -40,15 +11,14 @@ const WorkView: React.FC = () => {
     () => tasks.filter((task) => task.status === TASK_STATUS.PENDING),
     [tasks]
   );
-  const inProgressTasks = useMemo(
-    () => tasks.filter((task) => task.status === TASK_STATUS.IN_PROGRESS),
-    [tasks]
+  const inProgressTasks = tasks.filter(
+    (task) => task.status === TASK_STATUS.IN_PROGRESS
   );
+
   const completedTasks = useMemo(
     () => tasks.filter((task) => task.status === TASK_STATUS.COMPLETED),
     [tasks]
   );
-
   const [showTaskModal, setShowTaskModal] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -70,6 +40,7 @@ const WorkView: React.FC = () => {
         id: crypto.randomUUID(),
         ...taskData,
         status: TASK_STATUS.PENDING,
+        priority: "",
         assignedDate: new Date().toISOString().split("T")[0],
         activeTime: 0,
         sessions: [],
@@ -88,15 +59,35 @@ const WorkView: React.FC = () => {
     setEditingTask(null);
   };
 
+  useEffect(() => {
+    const activeTask = tasks.filter((task) => task.isTimerActive);
+    const interval = setInterval(() => {
+      if (activeTask.length === 0) return;
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => {
+          if (task.isTimerActive && task.timerStartTime !== null) {
+            return {
+              ...task,
+
+              activeTime: task.activeTime + 1,
+            };
+          }
+
+          return task;
+        })
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [tasks]);
+
   return (
     <>
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Task Tracker</h1>
-            <p className="text-gray-600 mt-1">
-              Track your active time and work sessions
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">Jon Does Work</h1>
           </div>
           <button
             onClick={openAddTaskModal}
@@ -118,12 +109,17 @@ const WorkView: React.FC = () => {
               </span>
             </div>
             {pendingTasks.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-8 text-gray-500">
                 <Clock size={48} className="mx-auto mb-4 text-gray-300" />
                 <p className="text-lg mb-2">Is this work/life balance?</p>
               </div>
             ) : (
-              pendingTasks.map((task) => <div>{task.id}</div>)
+              pendingTasks.map((task) => (
+                <TaskCard
+                  task={task}
+                  setTasks={setTasks}
+                />
+              ))
             )}
           </div>
           {/* InProgress Section */}
@@ -147,7 +143,9 @@ const WorkView: React.FC = () => {
                 <p>No tasks in progress.</p>
               </div>
             ) : (
-              inProgressTasks.map((task) => <div>{task.id}</div>)
+              inProgressTasks.map((task) => (
+                <TaskCard task={task} setTasks={setTasks} />
+              ))
             )}
           </div>
           {/* Compelted Section */}
@@ -169,7 +167,9 @@ const WorkView: React.FC = () => {
                 <p>Completed tasks will appear here.</p>
               </div>
             ) : (
-              completedTasks.map((task) => <div>{task.id}</div>)
+              completedTasks.map((task) => (
+                <TaskCard task={task} setTasks={setTasks} />
+              ))
             )}
           </div>
         </div>

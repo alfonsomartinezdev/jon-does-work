@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Task } from "../pages/WorkView";
+import type { Task } from "../global";
 
 interface TaskModalProps {
   editingTask: Task | null;
