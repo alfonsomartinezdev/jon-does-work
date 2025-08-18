@@ -1,9 +1,9 @@
 import { Check, CircleCheckBig, Clock, Play, Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TaskModal from "../components/TaskModal";
 
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   description: string;
   status: TaskStatus;
@@ -19,7 +19,13 @@ export interface TaskFormData {
   description: string;
 }
 
-export type TaskStatus = "pending" | "inProgress" | "completed";
+const TASK_STATUS = {
+  PENDING: "pending",
+  IN_PROGRESS: "inProgress",
+  COMPLETED: "completed",
+} as const;
+
+export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS];
 
 // from when you start the timer on a task to when you stop it
 interface Session {
@@ -29,9 +35,19 @@ interface Session {
 
 const WorkView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const pendingTasks = tasks.filter((task) => task.status === "pending");
-  const inProgressTasks = tasks.filter((task) => task.status === "inProgress");
-  const completedTasks = tasks.filter((task) => task.status === "completed");
+
+  const pendingTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUS.PENDING),
+    [tasks]
+  );
+  const inProgressTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUS.IN_PROGRESS),
+    [tasks]
+  );
+  const completedTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUS.COMPLETED),
+    [tasks]
+  );
 
   const [showTaskModal, setShowTaskModal] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -51,9 +67,9 @@ const WorkView: React.FC = () => {
       );
     } else {
       const newTask: Task = {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         ...taskData,
-        status: "pending" as TaskStatus,
+        status: TASK_STATUS.PENDING,
         assignedDate: new Date().toISOString().split("T")[0],
         activeTime: 0,
         sessions: [],
@@ -93,7 +109,6 @@ const WorkView: React.FC = () => {
 
         <div className="space-y-6">
           {/* Pending Section */}
-
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Clock size={20} className="text-gray-600" />
@@ -106,58 +121,60 @@ const WorkView: React.FC = () => {
               <div className="text-center py-12 text-gray-500">
                 <Clock size={48} className="mx-auto mb-4 text-gray-300" />
                 <p className="text-lg mb-2">Is this work/life balance?</p>
-                
               </div>
             ) : (
               pendingTasks.map((task) => <div>{task.id}</div>)
             )}
           </div>
-        </div>
-      </div>
+          {/* InProgress Section */}
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <Play size={20} className="text-blue-600" />
 
-      <div>
-        <div className="flex items-center space-x-2 mb-4">
-          <Play size={20} className="text-blue-600" />
+              <h2 className="text-lg font-semibold text-gray-900">
+                In Progress
+              </h2>
 
-          <h2 className="text-lg font-semibold text-gray-900">In Progress</h2>
-
-          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm">
-            {inProgressTasks.length}
-          </span>
-        </div>
-
-        {inProgressTasks.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-              <Play size={48} className="mx-auto mb-4 text-gray-300" />
-
-              <p>No tasks in progress.</p>
+              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm">
+                {inProgressTasks.length}
+              </span>
             </div>
-        ) : (
-          inProgressTasks.map((task) => <div>{task.id}</div>)
-        )}
 
-        <div>
-          <div className="flex items-center space-x-2 mb-4">
-            <CircleCheckBig size={20} className="text-green-600" />
+            {inProgressTasks.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Play size={48} className="mx-auto mb-4 text-gray-300" />
 
-            <h2 className="text-lg font-semibold text-gray-900">Completed</h2>
-
-            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-              {completedTasks.length}
-            </span>
+                <p>No tasks in progress.</p>
+              </div>
+            ) : (
+              inProgressTasks.map((task) => <div>{task.id}</div>)
+            )}
           </div>
+          {/* Compelted Section */}
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <CircleCheckBig size={20} className="text-green-600" />
 
-          {completedTasks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Check size={48} className="mx-auto mb-4 text-gray-300" />
+              <h2 className="text-lg font-semibold text-gray-900">Completed</h2>
 
-              <p>Completed tasks will appear here.</p>
+              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
+                {completedTasks.length}
+              </span>
             </div>
-          ) : (
-            completedTasks.map((task) => <div>{task.id}</div>)
-          )}
+
+            {completedTasks.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Check size={48} className="mx-auto mb-4 text-gray-300" />
+
+                <p>Completed tasks will appear here.</p>
+              </div>
+            ) : (
+              completedTasks.map((task) => <div>{task.id}</div>)
+            )}
+          </div>
         </div>
       </div>
+
       {showTaskModal && (
         <TaskModal
           editingTask={editingTask}
