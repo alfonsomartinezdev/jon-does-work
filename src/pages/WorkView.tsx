@@ -29,7 +29,6 @@ const WorkView: React.FC = () => {
 
   const handleSaveTask = (taskData: TaskFormData): void => {
     if (editingTask) {
-      // Edit existing task
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === editingTask.id ? { ...task, ...taskData } : task
@@ -43,6 +42,8 @@ const WorkView: React.FC = () => {
         priority: "",
         assignedDate: new Date().toISOString().split("T")[0],
         activeTime: 0,
+        baseActiveTime: 0,
+        currentSessionTime: 0,
         sessions: [],
         isTimerActive: false,
         timerStartTime: null,
@@ -59,28 +60,48 @@ const WorkView: React.FC = () => {
     setEditingTask(null);
   };
 
+useEffect(() => {
+  const savedTasks = localStorage.getItem('tasks');
+  if (savedTasks) {
+    try {
+      const parsedTasks = JSON.parse(savedTasks);
+      setTasks(parsedTasks);
+    } catch (error) {
+      console.error('Failed to parse saved tasks:', error);
+    }
+  }
+}, []);
+
   useEffect(() => {
-    const activeTask = tasks.filter((task) => task.isTimerActive);
-    const interval = setInterval(() => {
-      if (activeTask.length === 0) return;
+  const interval = setInterval(() => {
+    setTasks((prevTasks) => {
+      const hasActiveTimer = prevTasks.some(task => task.isTimerActive);
+      
+      if (!hasActiveTimer) return prevTasks;
+      
+      return prevTasks.map((task) => {
+        if (task.isTimerActive && task.timerStartTime !== null) {
+          const now = Date.now();
+          const currentSessionSeconds = Math.floor((now - task.timerStartTime) / 1000);
+          
+          return {
+            ...task,
+            currentSessionTime: currentSessionSeconds,
+          };
+        }
+        return task;
+      });
+    });
+  }, 1000);
 
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => {
-          if (task.isTimerActive && task.timerStartTime !== null) {
-            return {
-              ...task,
+  return () => clearInterval(interval);
+}, []);
 
-              activeTime: task.activeTime + 1,
-            };
-          }
-
-          return task;
-        })
-      );
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [tasks]);
+useEffect(() => {
+  if (tasks.length > 0) {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+}, [tasks]); 
 
   return (
     <>
@@ -115,10 +136,7 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               pendingTasks.map((task) => (
-                <TaskCard
-                  task={task}
-                  setTasks={setTasks}
-                />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} />
               ))
             )}
           </div>
@@ -144,7 +162,7 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               inProgressTasks.map((task) => (
-                <TaskCard task={task} setTasks={setTasks} />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} />
               ))
             )}
           </div>
@@ -168,7 +186,7 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               completedTasks.map((task) => (
-                <TaskCard task={task} setTasks={setTasks} />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} />
               ))
             )}
           </div>

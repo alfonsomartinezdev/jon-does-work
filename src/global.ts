@@ -6,6 +6,8 @@ export interface Task {
   status: TaskStatus;
   assignedDate: string;
   activeTime: number;
+  baseActiveTime: number; // Time accumulated before current session
+  currentSessionTime: number; // Current session duration in seconds
   sessions: Session[];
   isTimerActive: boolean;
   timerStartTime: number | null;
@@ -23,9 +25,6 @@ export const TASK_STATUS = {
 } as const;
 
 export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS];
-
-
-
 
 // from when you start the timer on a task to when you stop it
 export interface Session {
