@@ -36,7 +36,7 @@ const WorkView: React.FC = () => {
       );
     } else {
       const newTask: Task = {
-        id: crypto.randomUUID(),
+        id: Date.now().toString(),
         ...taskData,
         status: TASK_STATUS.PENDING,
         priority: "",
