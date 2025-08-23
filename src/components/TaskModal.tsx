@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
 import type { Task } from "../global";
-import { calculateSessionDuration, formatSessionTime, formatTime } from "../App.utils";
+import {
+  calculateSessionDuration,
+  formatSessionTime,
+} from "../App.utils";
+import { Delete } from "lucide-react";
 
 interface TaskModalProps {
   editingTask: Task | null;
   onSave: (taskData: { name: string; description: string }) => void;
   onCancel: () => void;
+  handleDeleteSession: (taskId: string, sessionIndex: number) => void;
 }
 
 const TaskModal: React.FC<TaskModalProps> = ({
   editingTask,
   onSave,
   onCancel,
+  handleDeleteSession,
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -48,7 +54,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         <h2 className="text-xl font-semibold mb-4">
           {editingTask ? "Edit Task" : "Add New Task"}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -64,7 +70,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description (optional)
@@ -84,17 +90,27 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </label>
             <input type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
           </div> */}
-          {editingTask && <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sessions
-            </label>
-            {
-              <ul>{editingTask.sessions.map((session) =>{
-                return <li>{formatSessionTime(session.start)} - {formatSessionTime(session.end)} ({calculateSessionDuration(session.start,session.end)})</li>
-              })}
-              </ul>
-            }
-          </div>}
+          {editingTask && (
+            <div>
+              <label className="block text-lg font-medium text-gray-900 mb-1">
+                Sessions
+              </label>
+              {
+                <ul className="text-md">{editingTask.sessions.map((session, index) => {
+                  return (
+                    <li key={index} className="flex items-center pb-2">
+                      <span>{formatSessionTime(session.start)} - {formatSessionTime(session.end)} ({calculateSessionDuration(session.start, session.end)})</span>
+                      <Delete
+                        className="ml-2 cursor-pointer text-gray-500 hover:text-red-500"
+                        onClick={() => handleDeleteSession(editingTask.id, index)}
+                      />
+                    </li>
+                  )
+                })}
+                </ul>
+              }
+            </div>
+          )}
           <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
@@ -103,7 +119,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             >
               Cancel
             </button>
-            
+
             <button
               type="submit"
               disabled={!name.trim()}

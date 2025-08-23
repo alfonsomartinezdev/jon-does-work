@@ -157,7 +157,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
     <div className="bg-white border border-gray-200 rounded-lg p-3 mb-1 shadow-smm flex items-center justify-between">
       <div className="flex items-center space-x-6">
         <div>
-          <h5 className="text-xl font-semibold text-gray-900 mb-2" onClick={() => onEdit(task)}>
+          <h5 className="text-xl font-semibold text-gray-900 mb-2 cursor-pointer" onClick={() => onEdit(task)}>
             {task.name}
           </h5>
           <div className="flex items-center space-x-4 text-sm text-gray-600">

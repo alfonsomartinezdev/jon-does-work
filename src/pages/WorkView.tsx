@@ -60,19 +60,49 @@ const WorkView: React.FC = () => {
     setEditingTask(null);
   };
 
+  const handleDeleteSession = (taskId: string, sessionIndex: number): void => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.id === taskId) {
+          const sessionToDelete = task.sessions[sessionIndex];
+          const sessionDuration = Math.floor(
+            (sessionToDelete.end - sessionToDelete.start) / 1000
+          );
+
+          const updatedTask = {
+            ...task,
+            sessions: task.sessions.filter(
+              (_, index) => index !== sessionIndex
+            ),
+            activeTime: task.activeTime - sessionDuration,
+            baseActiveTime: task.baseActiveTime - sessionDuration,
+          };
+
+          // Update editingTask if this is the task being edited
+          if (editingTask && editingTask.id === taskId) {
+            setEditingTask(updatedTask);
+          }
+
+          return updatedTask;
+        }
+        return task;
+      })
+    );
+  };
+
   const handleCancelModal = (): void => {
     setShowTaskModal(false);
     setEditingTask(null);
   };
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
+    const savedTasks = localStorage.getItem("tasks");
     if (savedTasks) {
       try {
         const parsedTasks = JSON.parse(savedTasks);
         setTasks(parsedTasks);
       } catch (error) {
-        console.error('Failed to parse saved tasks:', error);
+        console.error("Failed to parse saved tasks:", error);
       }
     }
   }, []);
@@ -80,14 +110,16 @@ const WorkView: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setTasks((prevTasks) => {
-        const hasActiveTimer = prevTasks.some(task => task.isTimerActive);
+        const hasActiveTimer = prevTasks.some((task) => task.isTimerActive);
 
         if (!hasActiveTimer) return prevTasks;
 
         return prevTasks.map((task) => {
           if (task.isTimerActive && task.timerStartTime !== null) {
             const now = Date.now();
-            const currentSessionSeconds = Math.floor((now - task.timerStartTime) / 1000);
+            const currentSessionSeconds = Math.floor(
+              (now - task.timerStartTime) / 1000
+            );
 
             return {
               ...task,
@@ -104,7 +136,7 @@ const WorkView: React.FC = () => {
 
   useEffect(() => {
     if (tasks.length > 0) {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem("tasks", JSON.stringify(tasks));
     }
   }, [tasks]);
 
@@ -141,7 +173,12 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               pendingTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  setTasks={setTasks}
+                  onEdit={openEditTaskModal}
+                />
               ))
             )}
           </div>
@@ -167,7 +204,12 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               inProgressTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  setTasks={setTasks}
+                  onEdit={openEditTaskModal}
+                />
               ))
             )}
           </div>
@@ -191,7 +233,12 @@ const WorkView: React.FC = () => {
               </div>
             ) : (
               completedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  setTasks={setTasks}
+                  onEdit={openEditTaskModal}
+                />
               ))
             )}
           </div>
@@ -203,6 +250,7 @@ const WorkView: React.FC = () => {
           editingTask={editingTask}
           onSave={handleSaveTask}
           onCancel={handleCancelModal}
+          handleDeleteSession={handleDeleteSession}
         />
       )}
     </>
