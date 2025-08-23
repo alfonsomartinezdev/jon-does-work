@@ -6,9 +6,15 @@ interface TaskCardProps {
   task: Task;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   onEdit: (task: Task) => void;
+  theme: (lightClass: string, darkClass: string) => string;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  setTasks,
+  onEdit,
+  theme,
+}) => {
   const toggleTimer = (taskId: string): void => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
@@ -22,7 +28,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
               if (sessionTime >= 1) {
                 const newSession: Session = {
                   start: task.timerStartTime,
-                  end: task.timerStartTime + (sessionTime * 1000)
+                  end: task.timerStartTime + sessionTime * 1000,
                 };
 
                 return {
@@ -60,7 +66,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
           const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
           const newSession: Session = {
             start: task.timerStartTime,
-            end: task.timerStartTime + (sessionTime * 1000)
+            end: task.timerStartTime + sessionTime * 1000,
           };
 
           return {
@@ -88,7 +94,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
             const newSession: Session = {
               start: task.timerStartTime,
-              end: task.timerStartTime + (sessionTime * 1000)
+              end: task.timerStartTime + sessionTime * 1000,
             };
 
             return {
@@ -125,7 +131,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
             const newSession: Session = {
               start: task.timerStartTime,
-              end: task.timerStartTime + (sessionTime * 1000)
+              end: task.timerStartTime + sessionTime * 1000,
             };
 
             return {
@@ -154,15 +160,30 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 mb-1 shadow-smm flex items-center justify-between">
+    <div
+      className={
+        theme(
+          "bg-white border border-gray-200",
+          "bg-gray-800 border border-gray-700"
+        ) + " rounded-lg p-3 mb-1 shadow-smm flex items-center justify-between"
+      }
+    >
       <div className="flex items-center space-x-6">
         <div>
-          <h5 className="text-xl font-semibold text-gray-900 mb-2 cursor-pointer" onClick={() => onEdit(task)}>
+          <h5
+            className={
+              theme("text-gray-900", "text-white") +
+              " text-xl font-semibold mb-2 cursor-pointer"
+            }
+            onClick={() => onEdit(task)}
+          >
             {task.name}
           </h5>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <div className="flex items-center space-x-1">
-              <span>Assigned {task.assignedDate}</span>
+              <span className={theme("text-gray-600", "text-gray-300")}>
+                Assigned {task.assignedDate}
+              </span>
             </div>
           </div>
         </div>
@@ -180,21 +201,39 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
         )}
 
         <div className="text-center">
-          <div className="text-2xl font-mono font-bold text-gray-600 mb-1">
+          <div
+            className={
+              theme("text-gray-600", "text-gray-300") +
+              " text-2xl font-mono font-bold mb-1"
+            }
+          >
             {formatTime(task.activeTime)}
           </div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">
+          <div
+            className={
+              theme("text-gray-500", "text-gray-400") +
+              " text-xs uppercase tracking-wide"
+            }
+          >
             Total Active Time
           </div>
         </div>
-
-        <div className="text-center">
-          <div className="text-2xl font-bold text-gray-600 mb-1">
-            {task.sessions.length}
-          </div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">
-            Sessions
-          </div>
+            <div className="text-center">
+        <div
+          className={
+            theme("text-gray-600", "text-gray-300") + " text-2xl font-bold mb-1"
+          }
+        >
+          {task.sessions.length}
+        </div>
+        <div
+          className={
+            theme("text-gray-500", "text-gray-400") +
+            " text-xs uppercase tracking-wide"
+          }
+        >
+          {task.sessions.length !==1 ? "Sessions" : "Session"}
+        </div>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -202,12 +241,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             <>
               <button
                 onClick={() => toggleTimer(task.id)}
-                className={`inline-flex items-center px-6 py-2 rounded-lg font-medium transition-colors ${task.isTimerActive
-                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
+                className={`inline-flex items-center px-6 py-2 rounded-lg font-medium transition-colors ${
+                  task.isTimerActive
+                    ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
-                { }
+                {}
                 {task.isTimerActive ? (
                   <>
                     <Pause className="h-4 w-4 mr-2" />
@@ -222,7 +262,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
               </button>
               <button
                 onClick={() => handleDone(task.id)}
-                className="inline-flex items-center px-6 py-2 rounded-lg font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors"
+                className={
+                  theme(
+                    "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
+                    "bg-gray-700 text-gray-200 border border-gray-600 hover:bg-gray-600"
+                  ) +
+                  " inline-flex items-center px-6 py-2 rounded-lg font-medium transition-colors"
+                }
               >
                 <Check className="h-4 w-4 mr-2" />
                 Mark Complete

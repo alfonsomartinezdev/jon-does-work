@@ -11,6 +11,7 @@ interface TaskModalProps {
   onSave: (taskData: { name: string; description: string }) => void;
   onCancel: () => void;
   handleDeleteSession: (taskId: string, sessionIndex: number) => void;
+  theme: (lightClass: string, darkClass: string) => string;
 }
 
 const TaskModal: React.FC<TaskModalProps> = ({
@@ -18,6 +19,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   onSave,
   onCancel,
   handleDeleteSession,
+  theme
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -49,22 +51,25 @@ const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-white/70 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
+    <div className={theme("fixed inset-0 bg-white/70", "fixed inset-0 bg-black/50") + " flex items-center justify-center p-4 z-50"}>
+      <div className={theme("bg-white", "bg-gray-800") + " rounded-lg p-6 w-full max-w-md"}>
+        <h2 className={theme("text-gray-900", "text-white") + " text-xl font-semibold mb-4"}>
           {editingTask ? "Edit Task" : "Add New Task"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={theme("text-gray-700", "text-gray-200") + " block text-sm font-medium mb-1"}>
               Task Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={theme(
+  "border-gray-300 text-gray-900 bg-white",
+  "border-gray-600 text-white bg-gray-700"
+) + " w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"}
               placeholder="Enter task name"
               autoFocus
               required
@@ -72,34 +77,32 @@ const TaskModal: React.FC<TaskModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={theme("text-gray-700", "text-gray-200") + " block text-sm font-medium mb-1"}>
               Description (optional)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={theme(
+  "border-gray-300 text-gray-900 bg-white",
+  "border-gray-600 text-white bg-gray-700"
+) + " w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"}
               placeholder="Enter task description"
               rows={3}
             />
           </div>
-
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Active Time (minutes)
-            </label>
-            <input type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
-          </div> */}
           {editingTask && (
             <div>
-              <label className="block text-lg font-medium text-gray-900 mb-1">
+              <label className={theme("text-gray-900", "text-white") + " block text-lg font-medium mb-1"}>
                 Sessions
               </label>
               {
                 <ul className="text-md">{editingTask.sessions.map((session, index) => {
                   return (
                     <li key={index} className="flex items-center pb-2">
-                      <span>{formatSessionTime(session.start)} - {formatSessionTime(session.end)} ({calculateSessionDuration(session.start, session.end)})</span>
+                      <span className={theme("text-gray-900", "text-gray-200")}>
+  {formatSessionTime(session.start)} - {formatSessionTime(session.end)} ({calculateSessionDuration(session.start, session.end)})
+</span>
                       <Delete
                         className="ml-2 cursor-pointer text-gray-500 hover:text-red-500"
                         onClick={() => handleDeleteSession(editingTask.id, index)}
@@ -113,12 +116,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
           )}
           <div className="flex justify-end space-x-3 mt-6">
             <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Cancel
-            </button>
+  type="button"
+  onClick={handleCancel}
+  className={theme("text-gray-600 hover:text-gray-800", "text-gray-300 hover:text-gray-100") + " px-4 py-2 transition-colors"}
+>
+  Cancel
+</button>
 
             <button
               type="submit"

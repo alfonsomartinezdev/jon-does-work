@@ -4,7 +4,11 @@ import TaskModal from "../components/TaskModal";
 import TaskCard from "../components/TaskCard";
 import { TASK_STATUS, type Task, type TaskFormData } from "../global";
 
-const WorkView: React.FC = () => {
+interface WorkViewProps {
+  theme: (lightClass: string, darkClass: string) => string;
+}
+
+const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const pendingTasks = useMemo(
@@ -145,7 +149,7 @@ const WorkView: React.FC = () => {
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Jon Does Work</h1>
+            <h1 className={theme("text-gray-900", "text-white") + " text-3xl font-bold"}>Jon Does Work</h1>
           </div>
           <button
             onClick={openAddTaskModal}
@@ -157,11 +161,10 @@ const WorkView: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Pending Section */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Clock size={20} className="text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Pending</h2>
+              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>Pending</h2>
               <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm">
                 {pendingTasks.length}
               </span>
@@ -169,7 +172,7 @@ const WorkView: React.FC = () => {
             {pendingTasks.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Clock size={48} className="mx-auto mb-4 text-gray-300" />
-                <p className="text-lg mb-2">Is this work/life balance?</p>
+                <p className={theme("text-gray-500", "text-gray-400") + " text-lg mb-2"}>Is this work/life balance?</p>
               </div>
             ) : (
               pendingTasks.map((task) => (
@@ -178,6 +181,7 @@ const WorkView: React.FC = () => {
                   task={task}
                   setTasks={setTasks}
                   onEdit={openEditTaskModal}
+                  theme={theme}
                 />
               ))
             )}
@@ -187,7 +191,7 @@ const WorkView: React.FC = () => {
             <div className="flex items-center space-x-2 mb-4">
               <Play size={20} className="text-blue-600" />
 
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>
                 In Progress
               </h2>
 
@@ -200,7 +204,7 @@ const WorkView: React.FC = () => {
               <div className="text-center py-8 text-gray-500">
                 <Play size={48} className="mx-auto mb-4 text-gray-300" />
 
-                <p>No tasks in progress.</p>
+                <p className={theme("text-gray-500", "text-gray-400")}>No tasks in progress.</p>
               </div>
             ) : (
               inProgressTasks.map((task) => (
@@ -209,6 +213,7 @@ const WorkView: React.FC = () => {
                   task={task}
                   setTasks={setTasks}
                   onEdit={openEditTaskModal}
+                  theme={theme}
                 />
               ))
             )}
@@ -218,7 +223,7 @@ const WorkView: React.FC = () => {
             <div className="flex items-center space-x-2 mb-4">
               <CircleCheckBig size={20} className="text-green-600" />
 
-              <h2 className="text-lg font-semibold text-gray-900">Completed</h2>
+              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>Completed</h2>
 
               <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
                 {completedTasks.length}
@@ -229,7 +234,7 @@ const WorkView: React.FC = () => {
               <div className="text-center py-8 text-gray-500">
                 <Check size={48} className="mx-auto mb-4 text-gray-300" />
 
-                <p>Completed tasks will appear here.</p>
+                <p className={theme("text-gray-500", "text-gray-400")}>Completed tasks will appear here.</p>
               </div>
             ) : (
               completedTasks.map((task) => (
@@ -238,6 +243,7 @@ const WorkView: React.FC = () => {
                   task={task}
                   setTasks={setTasks}
                   onEdit={openEditTaskModal}
+                  theme={theme}
                 />
               ))
             )}
@@ -251,6 +257,7 @@ const WorkView: React.FC = () => {
           onSave={handleSaveTask}
           onCancel={handleCancelModal}
           handleDeleteSession={handleDeleteSession}
+          theme={theme}
         />
       )}
     </>
