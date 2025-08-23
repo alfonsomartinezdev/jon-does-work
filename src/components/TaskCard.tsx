@@ -4,6 +4,7 @@ import { TASK_STATUS, type Session, type Task } from "../global";
 interface TaskCardProps {
   task: Task;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  onEdit: (task: Task) => void;
 }
 
 const formatTime = (seconds: number): string => {
@@ -22,7 +23,7 @@ const formatTime = (seconds: number): string => {
   }
 };
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
   const toggleTimer = (taskId: string): void => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
@@ -171,7 +172,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks }) => {
     <div className="bg-white border border-gray-200 rounded-lg p-3 mb-1 shadow-smm flex items-center justify-between">
       <div className="flex items-center space-x-6">
         <div>
-          <h5 className="text-xl font-semibold text-gray-900 mb-2">
+          <h5 className="text-xl font-semibold text-gray-900 mb-2" onClick={() => onEdit(task)}>
             {task.name}
           </h5>
           <div className="flex items-center space-x-4 text-sm text-gray-600">

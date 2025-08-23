@@ -27,6 +27,11 @@ const WorkView: React.FC = () => {
     setShowTaskModal(true);
   };
 
+  const openEditTaskModal = (task: Task): void => {
+    setEditingTask(task);
+    setShowTaskModal(true);
+  };
+
   const handleSaveTask = (taskData: TaskFormData): void => {
     if (editingTask) {
       setTasks((prevTasks) =>
@@ -60,48 +65,48 @@ const WorkView: React.FC = () => {
     setEditingTask(null);
   };
 
-useEffect(() => {
-  const savedTasks = localStorage.getItem('tasks');
-  if (savedTasks) {
-    try {
-      const parsedTasks = JSON.parse(savedTasks);
-      setTasks(parsedTasks);
-    } catch (error) {
-      console.error('Failed to parse saved tasks:', error);
+  useEffect(() => {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      try {
+        const parsedTasks = JSON.parse(savedTasks);
+        setTasks(parsedTasks);
+      } catch (error) {
+        console.error('Failed to parse saved tasks:', error);
+      }
     }
-  }
-}, []);
+  }, []);
 
   useEffect(() => {
-  const interval = setInterval(() => {
-    setTasks((prevTasks) => {
-      const hasActiveTimer = prevTasks.some(task => task.isTimerActive);
-      
-      if (!hasActiveTimer) return prevTasks;
-      
-      return prevTasks.map((task) => {
-        if (task.isTimerActive && task.timerStartTime !== null) {
-          const now = Date.now();
-          const currentSessionSeconds = Math.floor((now - task.timerStartTime) / 1000);
-          
-          return {
-            ...task,
-            currentSessionTime: currentSessionSeconds,
-          };
-        }
-        return task;
+    const interval = setInterval(() => {
+      setTasks((prevTasks) => {
+        const hasActiveTimer = prevTasks.some(task => task.isTimerActive);
+
+        if (!hasActiveTimer) return prevTasks;
+
+        return prevTasks.map((task) => {
+          if (task.isTimerActive && task.timerStartTime !== null) {
+            const now = Date.now();
+            const currentSessionSeconds = Math.floor((now - task.timerStartTime) / 1000);
+
+            return {
+              ...task,
+              currentSessionTime: currentSessionSeconds,
+            };
+          }
+          return task;
+        });
       });
-    });
-  }, 1000);
+    }, 1000);
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
 
-useEffect(() => {
-  if (tasks.length > 0) {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }
-}, [tasks]); 
+  useEffect(() => {
+    if (tasks.length > 0) {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+  }, [tasks]);
 
   return (
     <>
@@ -136,7 +141,7 @@ useEffect(() => {
               </div>
             ) : (
               pendingTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
               ))
             )}
           </div>
@@ -162,7 +167,7 @@ useEffect(() => {
               </div>
             ) : (
               inProgressTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
               ))
             )}
           </div>
@@ -186,7 +191,7 @@ useEffect(() => {
               </div>
             ) : (
               completedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} setTasks={setTasks} />
+                <TaskCard key={task.id} task={task} setTasks={setTasks} onEdit={openEditTaskModal}/>
               ))
             )}
           </div>
