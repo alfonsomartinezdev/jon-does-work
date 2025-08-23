@@ -1,27 +1,12 @@
 import { Check, Pause, Play } from "lucide-react";
 import { TASK_STATUS, type Session, type Task } from "../global";
+import { formatTime } from "../App.utils";
 
 interface TaskCardProps {
   task: Task;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   onEdit: (task: Task) => void;
 }
-
-const formatTime = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  const secs = seconds % 60;
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  } else if (minutes > 0) {
-    return `${minutes}m`;
-  } else {
-    return `${secs}s`;
-  }
-};
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
   const toggleTimer = (taskId: string): void => {
@@ -34,20 +19,22 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
               const sessionTime = Math.floor(
                 (now - task.timerStartTime) / 1000
               );
-              const newSession: Session = {
-                start: task.timerStartTime,
-                end: now,
-              };
+              if (sessionTime >= 1) {
+                const newSession: Session = {
+                  start: task.timerStartTime,
+                  end: task.timerStartTime + (sessionTime * 1000)
+                };
 
-              return {
-                ...task,
-                isTimerActive: false,
-                timerStartTime: null,
-                activeTime: task.baseActiveTime + sessionTime,
-                baseActiveTime: task.baseActiveTime + sessionTime,
-                currentSessionTime: 0,
-                sessions: [...task.sessions, newSession],
-              };
+                return {
+                  ...task,
+                  isTimerActive: false,
+                  timerStartTime: null,
+                  activeTime: task.baseActiveTime + sessionTime,
+                  baseActiveTime: task.baseActiveTime + sessionTime,
+                  currentSessionTime: 0,
+                  sessions: [...task.sessions, newSession],
+                };
+              }
             }
 
             return {
@@ -73,7 +60,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
           const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
           const newSession: Session = {
             start: task.timerStartTime,
-            end: now,
+            end: task.timerStartTime + (sessionTime * 1000)
           };
 
           return {
@@ -101,12 +88,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
             const newSession: Session = {
               start: task.timerStartTime,
-              end: now,
+              end: task.timerStartTime + (sessionTime * 1000)
             };
 
             return {
               ...task,
-              status: TASK_STATUS.COMPLETED,
               isTimerActive: false,
               timerStartTime: null,
               activeTime: task.baseActiveTime + sessionTime,
@@ -139,12 +125,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             const sessionTime = Math.floor((now - task.timerStartTime) / 1000);
             const newSession: Session = {
               start: task.timerStartTime,
-              end: now,
+              end: task.timerStartTime + (sessionTime * 1000)
             };
 
             return {
               ...task,
-              status: TASK_STATUS.IN_PROGRESS,
               isTimerActive: false,
               timerStartTime: null,
               activeTime: task.baseActiveTime + sessionTime,
@@ -217,13 +202,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, setTasks, onEdit }) => {
             <>
               <button
                 onClick={() => toggleTimer(task.id)}
-                className={`inline-flex items-center px-6 py-2 rounded-lg font-medium transition-colors ${
-                  task.isTimerActive
-                    ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
+                className={`inline-flex items-center px-6 py-2 rounded-lg font-medium transition-colors ${task.isTimerActive
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
               >
-                {}
+                { }
                 {task.isTimerActive ? (
                   <>
                     <Pause className="h-4 w-4 mr-2" />

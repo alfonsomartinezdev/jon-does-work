@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Task } from "../global";
+import { calculateSessionDuration, formatSessionTime, formatTime } from "../App.utils";
 
 interface TaskModalProps {
   editingTask: Task | null;
@@ -77,6 +78,23 @@ const TaskModal: React.FC<TaskModalProps> = ({
             />
           </div>
 
+          {/* <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Active Time (minutes)
+            </label>
+            <input type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+          </div> */}
+          {editingTask && <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sessions
+            </label>
+            {
+              <ul>{editingTask.sessions.map((session) =>{
+                return <li>{formatSessionTime(session.start)} - {formatSessionTime(session.end)} ({calculateSessionDuration(session.start,session.end)})</li>
+              })}
+              </ul>
+            }
+          </div>}
           <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
