@@ -49,7 +49,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   return (
     <div
-      onClick={handleCancel}
+      onMouseDown={handleCancel}
       className={
         theme(
           "fixed inset-0 bg-white/50",
@@ -58,7 +58,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
         className={
           theme("bg-white", "bg-gray-800") + " rounded-lg p-6 w-full max-w-md shadow-2xl"
         }

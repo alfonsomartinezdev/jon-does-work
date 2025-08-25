@@ -9,7 +9,7 @@ type ViewType = "work" | "summary";
 
 const TaskTracker: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>("work");
-  const { darkMode, setDarkMode, theme } = useDarkMode(); // Use hook's darkMode
+  const { darkMode, setDarkMode, theme } = useDarkMode();
 
   return (
     <div className={theme("min-h-screen bg-gray-50", "min-h-screen bg-gray-900")}>
