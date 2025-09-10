@@ -1,7 +1,6 @@
 import { Check, CircleCheckBig, Clock, Play, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import TaskModal from "../components/TaskModal";
-import TaskCard from "../components/TaskCard";
 import { TASK_STATUS, type Task, type TaskFormData } from "../global";
 import TaskSection from "../components/TaskSection";
 
@@ -16,9 +15,17 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
     () => tasks.filter((task) => task.status === TASK_STATUS.PENDING),
     [tasks]
   );
-  const inProgressTasks = tasks.filter(
-    (task) => task.status === TASK_STATUS.IN_PROGRESS
-  );
+  const inProgressTasks = useMemo(
+  () => tasks
+    .filter((task) => task.status === TASK_STATUS.IN_PROGRESS)
+    .sort((a, b) => {
+      // Active timers first
+      if (a.isTimerActive && !b.isTimerActive) return -1;
+      if (!a.isTimerActive && b.isTimerActive) return 1;
+      return 0;
+    }),
+  [tasks]
+);
 
   const completedTasks = useMemo(
     () => tasks.filter((task) => task.status === TASK_STATUS.COMPLETED),
