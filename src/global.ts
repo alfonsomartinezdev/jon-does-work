@@ -9,13 +9,21 @@ export interface Task {
   baseActiveTime: number; // Time accumulated before current session
   currentSessionTime: number; // Current session duration in seconds
   sessions: Session[];
+  activities: Activity[];
   isTimerActive: boolean;
   timerStartTime: number | null;
+}
+
+export interface Activity {
+  id: string;
+  text: string;
+  timestamp: string;
 }
 
 export interface TaskFormData {
   name: string;
   description: string;
+  activities: Activity[];
 }
 
 export const TASK_STATUS = {

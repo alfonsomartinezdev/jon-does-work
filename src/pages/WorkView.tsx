@@ -45,32 +45,33 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
   };
 
   const handleSaveTask = (taskData: TaskFormData): void => {
-    if (editingTask) {
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === editingTask.id ? { ...task, ...taskData } : task
-        )
-      );
-    } else {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        ...taskData,
-        status: TASK_STATUS.PENDING,
-        priority: "",
-        assignedDate: new Date().toISOString().split("T")[0],
-        activeTime: 0,
-        baseActiveTime: 0,
-        currentSessionTime: 0,
-        sessions: [],
-        isTimerActive: false,
-        timerStartTime: null,
-      };
-      setTasks((prev) => [...prev, newTask]);
-    }
+  if (editingTask) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === editingTask.id ? { ...task, ...taskData } : task
+      )
+    );
+  } else {
+    const newTask: Task = {
+      id: Date.now().toString(),
+      ...taskData,
+      status: TASK_STATUS.PENDING,
+      priority: "",
+      assignedDate: new Date().toISOString().split("T")[0],
+      activeTime: 0,
+      baseActiveTime: 0,
+      currentSessionTime: 0,
+      sessions: [],
+      activities: taskData.activities || [], // Add this line to ensure it's always an array
+      isTimerActive: false,
+      timerStartTime: null,
+    };
+    setTasks((prev) => [...prev, newTask]);
+  }
 
-    setShowTaskModal(false);
-    setEditingTask(null);
-  };
+  setShowTaskModal(false);
+  setEditingTask(null);
+};
 
   const handleDeleteTask = (taskId: string): void => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
