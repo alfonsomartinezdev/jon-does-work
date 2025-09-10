@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import type { Task } from "../global";
 import { calculateSessionDuration, formatSessionTime } from "../App.utils";
-import { Delete } from "lucide-react";
+import { Delete, Trash2 } from "lucide-react";
 
 interface TaskModalProps {
   editingTask: Task | null;
   onSave: (taskData: { name: string; description: string }) => void;
   onCancel: () => void;
   handleDeleteSession: (taskId: string, sessionIndex: number) => void;
+  handleDeleteTask: (taskId: string) => void;
   theme: (lightClass: string, darkClass: string) => string;
 }
 
@@ -16,6 +17,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   onSave,
   onCancel,
   handleDeleteSession,
+  handleDeleteTask,
   theme,
 }) => {
   const [name, setName] = useState("");
@@ -51,25 +53,29 @@ const TaskModal: React.FC<TaskModalProps> = ({
     <div
       onMouseDown={handleCancel}
       className={
-        theme(
-          "fixed inset-0 bg-white/50",
-          "fixed inset-0 bg-black/50"
-        ) + " flex items-center justify-center p-4 z-50"
+        theme("fixed inset-0 bg-white/50", "fixed inset-0 bg-black/50") +
+        " flex items-center justify-center p-4 z-50"
       }
     >
       <div
         onMouseDown={(e) => e.stopPropagation()}
         className={
-          theme("bg-white", "bg-gray-800") + " rounded-lg p-6 w-full max-w-md shadow-2xl"
+          theme("bg-white", "bg-gray-800") +
+          " rounded-lg p-6 w-full max-w-md shadow-2xl"
         }
       >
-        <h2
-          className={
-            theme("text-gray-900", "text-white") + " text-xl font-semibold mb-4"
-          }
-        >
-          {editingTask ? "Edit Task" : "Add New Task"}
-        </h2>
+        <div className="flex justify-between">
+          <h2
+            className={
+              theme("text-gray-900", "text-white") +
+              " text-xl font-semibold mb-4"
+            }
+          >
+            {editingTask ? "Edit Task" : "Add New Task"}
+          </h2>
+
+          {editingTask && <Trash2 onClick={() => handleDeleteTask(editingTask.id)} />}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

@@ -35,6 +35,7 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
     setEditingTask(task);
     setShowTaskModal(true);
   };
+  
 
   const handleSaveTask = (taskData: TaskFormData): void => {
     if (editingTask) {
@@ -63,6 +64,16 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
     setShowTaskModal(false);
     setEditingTask(null);
   };
+
+  const handleDeleteTask = (taskId: string): void => {
+  setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+  
+  // If we're currently editing the task that's being deleted, close the modal
+  if (editingTask && editingTask.id === taskId) {
+    setShowTaskModal(false);
+    setEditingTask(null);
+  }
+};
 
   const handleDeleteSession = (taskId: string, sessionIndex: number): void => {
     setTasks((prevTasks) =>
@@ -257,6 +268,7 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
           onSave={handleSaveTask}
           onCancel={handleCancelModal}
           handleDeleteSession={handleDeleteSession}
+          handleDeleteTask = {handleDeleteTask}
           theme={theme}
         />
       )}
