@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import TaskModal from "../components/TaskModal";
 import TaskCard from "../components/TaskCard";
 import { TASK_STATUS, type Task, type TaskFormData } from "../global";
+import TaskSection from "../components/TaskSection";
 
 interface WorkViewProps {
   theme: (lightClass: string, darkClass: string) => string;
@@ -35,7 +36,6 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
     setEditingTask(task);
     setShowTaskModal(true);
   };
-  
 
   const handleSaveTask = (taskData: TaskFormData): void => {
     if (editingTask) {
@@ -66,14 +66,14 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
   };
 
   const handleDeleteTask = (taskId: string): void => {
-  setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-  
-  // If we're currently editing the task that's being deleted, close the modal
-  if (editingTask && editingTask.id === taskId) {
-    setShowTaskModal(false);
-    setEditingTask(null);
-  }
-};
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
+    // If we're currently editing the task that's being deleted, close the modal
+    if (editingTask && editingTask.id === taskId) {
+      setShowTaskModal(false);
+      setEditingTask(null);
+    }
+  };
 
   const handleDeleteSession = (taskId: string, sessionIndex: number): void => {
     setTasks((prevTasks) =>
@@ -160,7 +160,13 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className={theme("text-gray-900", "text-white") + " text-3xl font-bold"}>Jon Does Work</h1>
+            <h1
+              className={
+                theme("text-gray-900", "text-white") + " text-3xl font-bold"
+              }
+            >
+              Jon Does Work
+            </h1>
           </div>
           <button
             onClick={openAddTaskModal}
@@ -172,93 +178,48 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
         </div>
 
         <div className="space-y-6">
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Clock size={20} className="text-gray-600" />
-              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>Pending</h2>
-              <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm">
-                {pendingTasks.length}
-              </span>
-            </div>
-            {pendingTasks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Clock size={48} className="mx-auto mb-4 text-gray-300" />
-                <p className={theme("text-gray-500", "text-gray-400") + " text-lg mb-2"}>Is this work/life balance?</p>
-              </div>
-            ) : (
-              pendingTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  setTasks={setTasks}
-                  onEdit={openEditTaskModal}
-                  theme={theme}
-                />
-              ))
-            )}
-          </div>
+          {/* Pending Section */}
+          <TaskSection
+            title="Pending"
+            icon={<Clock size={20} className="text-gray-600" />}
+            tasks={pendingTasks}
+            emptyStateIcon={
+              <Clock size={48} className="mx-auto mb-4 text-gray-300" />
+            }
+            emptyStateMessage="Is this work/life balance?"
+            badgeColors="bg-gray-200 text-gray-700"
+            setTasks={setTasks}
+            onEdit={openEditTaskModal}
+            theme={theme}
+          />
           {/* InProgress Section */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Play size={20} className="text-blue-600" />
-
-              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>
-                In Progress
-              </h2>
-
-              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm">
-                {inProgressTasks.length}
-              </span>
-            </div>
-
-            {inProgressTasks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Play size={48} className="mx-auto mb-4 text-gray-300" />
-
-                <p className={theme("text-gray-500", "text-gray-400")}>No tasks in progress.</p>
-              </div>
-            ) : (
-              inProgressTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  setTasks={setTasks}
-                  onEdit={openEditTaskModal}
-                  theme={theme}
-                />
-              ))
-            )}
-          </div>
-          {/* Compelted Section */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <CircleCheckBig size={20} className="text-green-600" />
-
-              <h2 className={theme("text-gray-900", "text-white") + " text-lg font-semibold"}>Completed</h2>
-
-              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-                {completedTasks.length}
-              </span>
-            </div>
-
-            {completedTasks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Check size={48} className="mx-auto mb-4 text-gray-300" />
-
-                <p className={theme("text-gray-500", "text-gray-400")}>Completed tasks will appear here.</p>
-              </div>
-            ) : (
-              completedTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  setTasks={setTasks}
-                  onEdit={openEditTaskModal}
-                  theme={theme}
-                />
-              ))
-            )}
-          </div>
+          <TaskSection
+            title={"In Progress"}
+            icon={<Play size={20} className="text-blue-600" />}
+            tasks={inProgressTasks}
+            emptyStateIcon={
+              <Play size={48} className="mx-auto mb-4 text-gray-300" />
+            }
+            emptyStateMessage={"No tasks in progress."}
+            badgeColors={"bg-blue-100 text-blue-700"}
+            setTasks={setTasks}
+            onEdit={openEditTaskModal}
+            theme={theme}
+          />
+          {/* Completed Section */}
+          <TaskSection
+            title="Completed"
+            icon={<CircleCheckBig size={20} className="text-green-600" />}
+            tasks={completedTasks}
+            emptyStateIcon={
+              <Check size={48} className="mx-auto mb-4 text-gray-300" />
+            }
+            emptyStateMessage="Completed tasks will appear here."
+            badgeColors="bg-green-100 text-green-700"
+            setTasks={setTasks}
+            onEdit={openEditTaskModal}
+            theme={theme}
+          />
         </div>
       </div>
 
@@ -268,7 +229,7 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
           onSave={handleSaveTask}
           onCancel={handleCancelModal}
           handleDeleteSession={handleDeleteSession}
-          handleDeleteTask = {handleDeleteTask}
+          handleDeleteTask={handleDeleteTask}
           theme={theme}
         />
       )}
