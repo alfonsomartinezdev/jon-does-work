@@ -73,7 +73,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const startEditingActivity = (activity: Activity) => {
     setEditingActivityId(activity.id);
     setEditingActivityText(activity.text);
-    // Convert ISO string to datetime-local format for input
+
     const date = new Date(activity.timestamp);
     const localDateTime = new Date(
       date.getTime() - date.getTimezoneOffset() * 60000
@@ -106,7 +106,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const cancelActivityEdit = () => {
     setEditingActivityId(null);
     setEditingActivityText("");
-    setEditingActivityTimestamp(""); // Add this line
+    setEditingActivityTimestamp("");
   };
 
   const deleteActivity = (activityId: string) => {
@@ -124,6 +124,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (editingActivityId) {
+      return;
+    }
     if (name.trim()) {
       onSave({
         name: name.trim(),
@@ -156,7 +159,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         onMouseDown={(e) => e.stopPropagation()}
         className={
           theme("bg-white", "bg-gray-800") +
-          " rounded-lg p-6 w-full max-w-md shadow-2xl"
+          " rounded-lg p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
         }
       >
         <div className="flex justify-between">
@@ -281,7 +284,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                           key={activity.id}
                           className="flex items-start gap-2 group"
                         >
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             {editingActivityId === activity.id ? (
                               <div className="flex flex-col gap-2">
                                 <input
@@ -336,7 +339,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                                 <p
                                   className={
                                     theme("text-gray-900", "text-gray-100") +
-                                    " text-sm"
+                                    " text-sm break-words"
                                   }
                                 >
                                   {activity.text}
@@ -354,7 +357,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                           </div>
 
                           {editingActivityId !== activity.id && (
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                               <button
                                 type="button"
                                 onClick={() => startEditingActivity(activity)}
