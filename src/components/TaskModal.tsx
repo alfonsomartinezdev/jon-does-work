@@ -74,7 +74,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             {editingTask ? "Edit Task" : "Add New Task"}
           </h2>
 
-          {editingTask && <Trash2 onClick={() => handleDeleteTask(editingTask.id)} />}
+          {editingTask && <Trash2 className="cursor-pointer text-red-500 hover:text-red-400" onClick={() => handleDeleteTask(editingTask.id)} />}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
