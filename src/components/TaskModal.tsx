@@ -46,6 +46,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
   }, [editingTask]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleCancel();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
   const formatActivityTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString("en-US", {
@@ -128,10 +139,21 @@ const TaskModal: React.FC<TaskModalProps> = ({
       return;
     }
     if (name.trim()) {
+      let finalActivities = activities;
+
+      if (newActivity.trim()) {
+        const activity: Activity = {
+          id: Date.now().toString(),
+          text: newActivity.trim(),
+          timestamp: new Date().toISOString(),
+        };
+        finalActivities = [activity, ...activities];
+      }
+
       onSave({
         name: name.trim(),
         description: description.trim(),
-        activities: activities,
+        activities: finalActivities,
       });
     }
   };
