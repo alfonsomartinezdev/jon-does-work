@@ -46,6 +46,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
   }, [editingTask]);
 
+  const handleCancel = useCallback(() => {
+    setName("");
+    setDescription("");
+    setActivities([]);
+    setNewActivity("");
+    setEditingActivityId(null);
+    setEditingActivityText("");
+    setEditingActivityTimestamp("");
+    onCancel();
+  }, [onCancel]);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -157,17 +168,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
       });
     }
   };
-
-  const handleCancel = useCallback(() => {
-    setName("");
-    setDescription("");
-    setActivities([]);
-    setNewActivity("");
-    setEditingActivityId(null);
-    setEditingActivityText("");
-    setEditingActivityTimestamp("");
-    onCancel();
-  }, [onCancel]);
 
   return (
     <div
