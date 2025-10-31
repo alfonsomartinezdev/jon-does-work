@@ -1,4 +1,11 @@
-import { Check, CircleCheckBig, Clock, Play, Plus } from "lucide-react";
+import {
+  Check,
+  CircleCheckBig,
+  Clock,
+  Download,
+  Play,
+  Plus,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import TaskModal from "../components/TaskModal";
 import { TASK_STATUS, type Task, type TaskFormData } from "../global";
@@ -16,16 +23,16 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
     [tasks]
   );
   const inProgressTasks = useMemo(
-  () => tasks
-    .filter((task) => task.status === TASK_STATUS.IN_PROGRESS)
-    .sort((a, b) => {
-      // Active timers first
-      if (a.isTimerActive && !b.isTimerActive) return -1;
-      if (!a.isTimerActive && b.isTimerActive) return 1;
-      return 0;
-    }),
-  [tasks]
-);
+    () =>
+      tasks
+        .filter((task) => task.status === TASK_STATUS.IN_PROGRESS)
+        .sort((a, b) => {
+          if (a.isTimerActive && !b.isTimerActive) return -1;
+          if (!a.isTimerActive && b.isTimerActive) return 1;
+          return 0;
+        }),
+    [tasks]
+  );
 
   const completedTasks = useMemo(
     () => tasks.filter((task) => task.status === TASK_STATUS.COMPLETED),
@@ -45,33 +52,33 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
   };
 
   const handleSaveTask = (taskData: TaskFormData): void => {
-  if (editingTask) {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === editingTask.id ? { ...task, ...taskData } : task
-      )
-    );
-  } else {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      ...taskData,
-      status: TASK_STATUS.PENDING,
-      priority: "",
-      assignedDate: new Date().toISOString().split("T")[0],
-      activeTime: 0,
-      baseActiveTime: 0,
-      currentSessionTime: 0,
-      sessions: [],
-      activities: taskData.activities || [], // Add this line to ensure it's always an array
-      isTimerActive: false,
-      timerStartTime: null,
-    };
-    setTasks((prev) => [...prev, newTask]);
-  }
+    if (editingTask) {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === editingTask.id ? { ...task, ...taskData } : task
+        )
+      );
+    } else {
+      const newTask: Task = {
+        id: Date.now().toString(),
+        ...taskData,
+        status: TASK_STATUS.PENDING,
+        priority: "",
+        assignedDate: new Date().toISOString().split("T")[0],
+        activeTime: 0,
+        baseActiveTime: 0,
+        currentSessionTime: 0,
+        sessions: [],
+        activities: taskData.activities || [], // Add this line to ensure it's always an array
+        isTimerActive: false,
+        timerStartTime: null,
+      };
+      setTasks((prev) => [...prev, newTask]);
+    }
 
-  setShowTaskModal(false);
-  setEditingTask(null);
-};
+    setShowTaskModal(false);
+    setEditingTask(null);
+  };
 
   const handleDeleteTask = (taskId: string): void => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
@@ -116,6 +123,33 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
   const handleCancelModal = (): void => {
     setShowTaskModal(false);
     setEditingTask(null);
+  };
+
+  const handleExportData = (): void => {
+    const dataToExport = {
+      exportDate: new Date().toISOString(),
+      tasks: tasks,
+      metadata: {
+        totalTasks: tasks.length,
+        pendingTasks: pendingTasks.length,
+        inProgressTasks: inProgressTasks.length,
+        completedTasks: completedTasks.length,
+      },
+    };
+
+    const jsonString = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `jon-does-work-backup-${
+      new Date().toISOString().split("T")[0]
+    }.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
@@ -176,13 +210,28 @@ const WorkView: React.FC<WorkViewProps> = ({ theme }) => {
               Jon Does Work
             </h1>
           </div>
-          <button
-            onClick={openAddTaskModal}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus size={20} />
-            <span>Add Task</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleExportData}
+              className={
+                theme(
+                  "bg-gray-200 text-gray-700 hover:bg-gray-300",
+                  "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                ) +
+                " px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              }
+            >
+              <Download size={20} />
+              <span>Export Data</span>
+            </button>
+            <button
+              onClick={openAddTaskModal}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus size={20} />
+              <span>Add Task</span>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-6">
