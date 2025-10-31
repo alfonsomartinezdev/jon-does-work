@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Activity, Task } from "../global";
 import { calculateSessionDuration, formatSessionTime } from "../App.utils";
 import { Delete, Trash2, Edit2, Save, X, Plus } from "lucide-react";
@@ -55,7 +55,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [handleCancel]);
 
   const formatActivityTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -158,7 +158,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setName("");
     setDescription("");
     setActivities([]);
@@ -167,7 +167,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setEditingActivityText("");
     setEditingActivityTimestamp("");
     onCancel();
-  };
+  }, [onCancel]);
 
   return (
     <div
@@ -254,7 +254,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
           </div>
           {editingTask && (
             <>
-              {/* Activity Log Section */}
               <div>
                 <label
                   className={
@@ -265,7 +264,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   Activity Log
                 </label>
 
-                {/* Add new activity */}
                 <div className="flex gap-2 mb-3">
                   <input
                     type="text"
@@ -292,7 +290,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   </button>
                 </div>
 
-                {/* Activities list */}
                 {activities.length > 0 && (
                   <div
                     className={
